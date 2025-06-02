@@ -1,0 +1,6 @@
+@apbd12_DBfirstEFCore_HostAddress = http://localhost:5037
+
+GET {{apbd12_DBfirstEFCore_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
