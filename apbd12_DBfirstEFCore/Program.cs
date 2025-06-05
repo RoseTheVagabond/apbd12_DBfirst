@@ -1,3 +1,6 @@
+using apbd12_DBfirstEFCore.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace apbd12_DBfirstEFCore;
 
 public class Program
@@ -12,6 +15,13 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddControllers();
+        builder.Services.AddDbContext<TripsContext>(opt =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+                opt.UseSqlServer(connectionString);
+            }
+            );
 
         var app = builder.Build();
 
@@ -23,7 +33,7 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
+        app.MapControllers();
         app.UseAuthorization();
 
         
