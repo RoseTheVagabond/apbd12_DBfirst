@@ -19,8 +19,6 @@ public class TripsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllTripsAsync(CancellationToken cancellationToken = default)
     {
-        // var trips = await _context.Trips.ToListAsync(cancellationToken);
-        // return Ok(trips);
         var trips = await _tripsService.GetAllTripsAsync(cancellationToken);
         return Ok(trips);
     }

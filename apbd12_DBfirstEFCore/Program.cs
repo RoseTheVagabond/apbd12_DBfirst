@@ -1,4 +1,5 @@
 using apbd12_DBfirstEFCore.Models;
+using apbd12_DBfirstEFCore.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace apbd12_DBfirstEFCore;
@@ -23,6 +24,7 @@ public class Program
             }
             );
 
+        builder.Services.AddScoped<ITripsService, TripsService>();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

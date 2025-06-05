@@ -18,34 +18,32 @@ public class TripsService : ITripsService
         int totalCount = await _context.Trips.CountAsync(cancellationToken);
         int allPages = (int)Math.Ceiling(totalCount / (double)pageSize);
         
-        TripsResponseDTO tripsResponseDTO = new TripsResponseDTO();
-        tripsResponseDTO.pageNum = pageNum;
-        tripsResponseDTO.pageSize = pageSize;
-        tripsResponseDTO.allPages = allPages;
-
-        tripsResponseDTO.trips = new List<TripDTO>();
-        
-        List<Trip> allTrips = await _context.Trips.OrderByDescending(t => t.DateFrom).ToListAsync(cancellationToken);
-        foreach (Trip trip in allTrips)
-        {
-            TripDTO tripDTO = new TripDTO()
+        var trips = await _context.Trips.OrderByDescending(t => t.DateFrom)
+            .Skip((pageNum - 1) * pageSize).Take(pageSize).Select(trip => new TripDTO
             {
                 Name = trip.Name,
                 DateFrom = trip.DateFrom,
                 DateTo = trip.DateTo,
                 MaxPeople = trip.MaxPeople,
-                Counties = trip.IdCountries.Select(c => new CountryDTO()
-                {
-                    Name = c.Name
-                }).ToList(),
-                Clients = trip.ClientTrips.Select(c => new ClientDTO()
-                {
-                    FirstName = c.IdClientNavigation.FirstName,
-                    LastName = c.IdClientNavigation.LastName
-                }).ToList()
-            };
-            tripsResponseDTO.trips.Add(tripDTO);
-        }
-        return tripsResponseDTO;
+                Counties = trip.IdCountries
+                    .Select(country => new CountryDTO { Name = country.Name })
+                    .ToList(),
+                Clients = trip.ClientTrips
+                    .Select(ct => new ClientDTO 
+                    { 
+                        FirstName = ct.IdClientNavigation.FirstName,
+                        LastName = ct.IdClientNavigation.LastName
+                    })
+                    .ToList()
+            })
+            .ToListAsync(cancellationToken);
+
+        return new TripsResponseDTO
+        {
+            pageNum = pageNum,
+            pageSize = pageSize,
+            allPages = allPages,
+            trips = trips
+        };
     }
 }
