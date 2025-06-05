@@ -1,3 +1,4 @@
+using System.Data;
 using apbd12_DBfirstEFCore.DTOs;
 using apbd12_DBfirstEFCore.Models;
 using Microsoft.EntityFrameworkCore;
@@ -45,5 +46,35 @@ public class TripsService : ITripsService
             allPages = allPages,
             trips = trips
         };
+    }
+
+    public async Task<bool> DoesClientExist(int clientId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Clients.AnyAsync(c => c.IdClient == clientId, cancellationToken);
+    }
+
+    public async Task<bool> DoesClientHaveTrips(int clientId, CancellationToken cancellationToken = default)
+    {
+       return await _context.ClientTrips.AnyAsync(ct => ct.IdClient == clientId, cancellationToken: cancellationToken);
+    }
+
+    public async Task<int> DeleteClient(int clientId, CancellationToken cancellationToken = default)
+    {
+        if (!await DoesClientExist(clientId, cancellationToken))
+        {
+            throw new ArgumentException();
+        }
+        if (await DoesClientHaveTrips(clientId, cancellationToken))
+        {
+            throw new DataException();
+        }
+        
+        var client = await _context.Clients.FindAsync(clientId, cancellationToken);
+        if (client != null)
+        {
+            _context.Clients.Remove(client);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        return clientId;
     }
 }
