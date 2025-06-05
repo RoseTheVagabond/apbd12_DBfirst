@@ -8,4 +8,5 @@ public interface ITripsService
     Task<bool> DoesClientExist(int clientId, CancellationToken cancellationToken = default);
     Task<bool> DoesClientHaveTrips(int clientId, CancellationToken cancellationToken = default);
     Task<int> DeleteClient(int clientId, CancellationToken cancellationToken = default);
+    Task AssignClientToTrip(int idTrip, AssignClientDTO clientDto, CancellationToken cancellationToken = default);
 }

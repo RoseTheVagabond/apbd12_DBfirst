@@ -77,4 +77,42 @@ public class TripsService : ITripsService
         }
         return clientId;
     }
+
+    public async Task AssignClientToTrip(int idTrip, AssignClientDTO clientDto, CancellationToken cancellationToken)
+    {
+        var existingClient = await _context.Clients.FirstOrDefaultAsync(ct => ct.Pesel == clientDto.Pesel, cancellationToken);
+        if (existingClient == null)
+        {
+            throw new Exception($"Client with pesel {clientDto.Pesel} does not exist");
+        }
+
+        var clientAssigned =
+            await _context.ClientTrips.FirstOrDefaultAsync(ct => ct.IdClientNavigation.Pesel == clientDto.Pesel && ct.IdTrip == idTrip,
+                cancellationToken);
+        if (clientAssigned != null)
+        {
+            throw new Exception($"Client with pesel {clientDto.Pesel} is already assigned to the trip with id {idTrip}");
+        }
+        var trip = await _context.Trips.FindAsync(idTrip, cancellationToken);
+        if (trip == null)
+        {
+            throw new Exception($"Trip with id {idTrip} does not exist");
+        }
+
+        var futureTrip = await _context.Trips.FirstOrDefaultAsync(t => t.DateFrom > DateTime.Today && t.IdTrip == idTrip, cancellationToken);
+        if (futureTrip == null)
+        {
+            throw new Exception($"Trip with id {idTrip} is not in the future");
+        }
+
+        var clientTrip = new ClientTrip()
+        {
+            IdClient = existingClient.IdClient,
+            IdTrip = idTrip,
+            RegisteredAt = DateTime.Now,
+            PaymentDate = clientDto.PaymentDate
+        };
+        _context.ClientTrips.Add(clientTrip);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
 }
