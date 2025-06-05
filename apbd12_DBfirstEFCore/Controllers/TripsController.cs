@@ -1,9 +1,7 @@
 using System.Data;
 using apbd12_DBfirstEFCore.DTOs;
-using apbd12_DBfirstEFCore.Models;
 using apbd12_DBfirstEFCore.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace apbd12_DBfirstEFCore.Controllers;
 
@@ -55,7 +53,6 @@ public class TripsController : ControllerBase
         {
             return BadRequest(e.Message);
         }
-
         return Created();
     }
 }
