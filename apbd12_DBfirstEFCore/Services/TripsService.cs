@@ -66,7 +66,7 @@ public class TripsService : ITripsService
         }
         if (await DoesClientHaveTrips(clientId, cancellationToken))
         {
-            throw new DataException();
+            throw new Exception();
         }
         
         var client = await _context.Clients.FindAsync(clientId, cancellationToken);
